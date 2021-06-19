@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">iHerb Pro</string>
+    <string name="add_prescription_desc" />
 </resources>

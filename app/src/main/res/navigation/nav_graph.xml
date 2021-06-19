@@ -11,13 +11,13 @@
         android:label="main_fragment"
         tools:layout="@layout/main_fragment">
         <action
-            android:id="@+id/action_mainFragment_to_chatFragment"
-            app:destination="@id/chatFragment" />
+            android:id="@+id/action_mainFragment_to_prescriptionFragment"
+            app:destination="@id/prescriptionFragment" />
     </fragment>
 
     <fragment
-        android:id="@+id/chatFragment"
-        android:name="ru.biohackers.iherb.android.presentation.chat.ChatFragment"
+        android:id="@+id/prescriptionFragment"
+        android:name="ru.biohackers.iherb.android.presentation.prescription.PrescriptionsFragment"
         android:label="ChatFragment" />
 
 </navigation>

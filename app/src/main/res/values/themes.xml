@@ -2,13 +2,13 @@
 
     <style name="Theme.PSBSport" parent="Theme.MaterialComponents.DayNight.NoActionBar">
 
-        <item name="colorPrimary">@color/orange</item>
-        <item name="colorPrimaryVariant">@color/orange_dark</item>
-        <item name="colorOnPrimary">@color/black</item>
+        <item name="colorPrimary">@color/green</item>
+        <item name="colorPrimaryVariant">@color/green_dark</item>
+        <item name="colorOnPrimary">@color/white</item>
 
-        <item name="colorSecondary">@color/purple</item>
-        <item name="colorSecondaryVariant">@color/purple_dark</item>
-        <item name="colorOnSecondary">@color/black</item>
+        <item name="colorSecondary">@color/green</item>
+        <item name="colorSecondaryVariant">@color/green_dark</item>
+        <item name="colorOnSecondary">@color/white</item>
 
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorSecondaryVariant</item>
         <item name="android:navigationBarColor">@color/brown</item>
