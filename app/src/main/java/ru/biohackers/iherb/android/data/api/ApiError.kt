@@ -4,8 +4,9 @@ import com.google.gson.Gson
 import okhttp3.ResponseBody
 
 data class ApiError(
-    val code: Int?, //
-    val message: String?
+    val code: Int?,
+    val status: String?,
+    val error: String?,
 ) {
     companion object {
         fun ResponseBody.parseAsError(): ApiError? {

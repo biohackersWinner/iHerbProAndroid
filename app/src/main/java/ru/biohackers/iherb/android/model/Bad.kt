@@ -9,3 +9,15 @@ data class Bad(
     val categories: List<BadCategory>,
     val characteristics: String, // todo можно сделать моделькой
 )
+
+data class BadGroup(
+    val id: Int,
+    val title: String,
+    val synonyms: List<String>,
+    val bads: List<Bad>,
+)
+
+data class BadCategory(
+    val id: Int,
+    val title: String,
+)

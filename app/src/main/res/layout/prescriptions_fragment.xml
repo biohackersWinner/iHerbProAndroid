@@ -8,6 +8,7 @@
     tools:context="ru.biohackers.iherb.android.presentation.main.MainFragment">
 
     <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerPrescription"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:orientation="vertical"
@@ -20,7 +21,7 @@
         tools:listitem="@layout/prescription_item" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/buttonAddPrescription"
+        android:id="@+id/buttonAddPrescriptionPicture"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|right"
@@ -29,5 +30,16 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@drawable/ic_file_medical" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/buttonAddPrescriptionCamera"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|right"
+        android:layout_margin="16dp"
+        android:contentDescription="@string/add_prescription_desc"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/buttonAddPrescriptionPicture"
+        app:srcCompat="@drawable/ic_camera" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

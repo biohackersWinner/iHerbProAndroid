@@ -8,21 +8,35 @@ import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
+import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
+import org.threeten.bp.format.DateTimeFormatter
+import ru.biohackers.iherb.android.databinding.PrescriptionItemBinding
 import ru.biohackers.iherb.android.databinding.PrescriptionsFragmentBinding
+import ru.biohackers.iherb.android.model.Prescription
 import ru.biohackers.iherb.android.utils.bind
 
 @AndroidEntryPoint
 class PrescriptionsFragment : Fragment() {
 
-    val getContent = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-        viewModel.addPrescription(uri)
-    }
+    private val getContent =
+        registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri ->
+            viewModel.addPrescription(uri)
+        }
+
+    private var imageUri: Uri? = null
+    private val takePicture =
+        registerForActivityResult(ActivityResultContracts.TakePicture()) { imageSaved: Boolean ->
+            imageUri?.let { viewModel.addPrescription(it) }
+        }
 
     private var _binding: PrescriptionsFragmentBinding? = null
     private val binding get() = _binding ?: throw IllegalStateException("_binding is null")
-
     private val viewModel: PrescriptionViewModel by viewModels()
+
+    private val prescriptionAdapter = PrescriptionAdapter()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -37,17 +51,64 @@ class PrescriptionsFragment : Fragment() {
     ) {
         super.onViewCreated(view, savedInstanceState)
 
-        bind(viewModel.prescriptions) {
-
+        binding.recyclerPrescription.adapter = prescriptionAdapter
+        binding.buttonAddPrescriptionPicture.setOnClickListener {
+            getContent.launch("image/*")
+        }
+        binding.buttonAddPrescriptionCamera.setOnClickListener {
+            takePicture.launch(imageUri)
         }
 
-        binding.buttonAddPrescription.setOnClickListener {
-            getContent.launch("image/*")
+        bind(viewModel.prescriptions) {
+            prescriptionAdapter.submitList(it)
+        }
+    }
+}
+
+class PrescriptionAdapter :
+    ListAdapter<Prescription, PrescriptionAdapter.PrescriptionViewHolder>(WeekDiffCallback()) {
+
+    override fun onCreateViewHolder(
+        parent: ViewGroup,
+        viewType: Int
+    ): PrescriptionViewHolder {
+        val inflater = LayoutInflater.from(parent.context)
+        return PrescriptionViewHolder(
+            PrescriptionItemBinding.inflate(inflater, parent, false)
+        )
+    }
+
+    override fun onBindViewHolder(holder: PrescriptionViewHolder, position: Int) {
+        holder.bind(getItem(position))
+    }
+
+    class PrescriptionViewHolder(val binding: PrescriptionItemBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+
+        fun bind(item: Prescription) {
+            binding.textViewDate.text = DATE_FORMATTER.format(item.date)
+            binding.textViewDescription.text = "Распознано 10 позиций"
         }
     }
 
-
-
+    companion object {
+        val DATE_FORMATTER = DateTimeFormatter.ofPattern("d MMM yyyy HH:mm")
+    }
 }
 
+class WeekDiffCallback : DiffUtil.ItemCallback<Prescription>() {
 
+    override fun areItemsTheSame(
+        oldItem: Prescription,
+        newItem: Prescription
+    ): Boolean {
+        return oldItem.id == newItem.id
+    }
+
+    override fun areContentsTheSame(
+        oldItem: Prescription,
+        newItem: Prescription
+    ): Boolean {
+        return oldItem == newItem
+    }
+}

@@ -13,11 +13,19 @@
         <action
             android:id="@+id/action_mainFragment_to_prescriptionFragment"
             app:destination="@id/prescriptionFragment" />
+        <action
+            android:id="@+id/action_mainFragment_to_anketaFragment"
+            app:destination="@id/anketaFragment" />
     </fragment>
 
     <fragment
         android:id="@+id/prescriptionFragment"
         android:name="ru.biohackers.iherb.android.presentation.prescription.PrescriptionsFragment"
         android:label="ChatFragment" />
+
+    <fragment
+        android:id="@+id/anketaFragment"
+        android:name="ru.biohackers.iherb.android.presentation.anketa.AnketaFragment"
+        android:label="AnketaFragment" />
 
 </navigation>

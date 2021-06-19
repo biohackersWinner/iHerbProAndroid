@@ -38,6 +38,9 @@ class MainFragment : Fragment() {
         binding.button.setOnClickListener {
             findNavController().navigate(R.id.action_mainFragment_to_prescriptionFragment)
         }
+        binding.buttonAnketa.setOnClickListener {
+            findNavController().navigate(R.id.action_mainFragment_to_anketaFragment)
+        }
     }
 
 }
