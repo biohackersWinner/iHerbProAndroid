@@ -1,10 +1,7 @@
 package ru.biohackers.iherb.android.utils
 
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.drawable.GradientDrawable
-import android.os.Environment
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -20,9 +17,9 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import java.io.File
-import java.io.FileOutputStream
 import java.time.DayOfWeek
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.time.temporal.WeekFields
 import java.util.*
 
@@ -100,21 +97,6 @@ fun GradientDrawable.setCornerRadius(
     ).toFloatArray()
 }
 
-
-//fun resize(){
-//    val dir: File = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM)
-//    val b = BitmapFactory.decodeFile(PATH_ORIGINAL_IMAGE)
-//    val out = Bitmap.createScaledBitmap(b, 320, 480, false)
-//
-//    val file = File(dir, "resize.png")
-//    val fOut: FileOutputStream
-//    try {
-//        fOut = FileOutputStream(file)
-//        out.compress(Bitmap.CompressFormat.PNG, 100, fOut)
-//        fOut.flush()
-//        fOut.close()
-//        b.recycle()
-//        out.recycle()
-//    } catch (e: Exception) {
-//    }
-//}
+val FILE_NAME_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
+fun generateFileName(extension: String) =
+    "${FILE_NAME_FORMATTER.format(LocalDateTime.now())}.${extension}"

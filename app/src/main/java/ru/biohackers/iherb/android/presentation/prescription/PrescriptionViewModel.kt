@@ -28,31 +28,25 @@ class PrescriptionViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            _prescriptions.emit(getInitialPrescriptions())
+            _prescriptions.emit(repository.getPrescriptions())
         }
-    }
-
-    fun getInitialPrescriptions(): List<Prescription> {
-        return repository.getPrescriptions()
     }
 
     fun addPrescription(uri: Uri) {
         viewModelScope.launch {
             // show loader
             val file: File = fileManager.savePrescriptionImageFile(uri)
-            val string = imageRecognizer.recognizeImage(file)
-
-            val terms = string.split(" ").toSet()
-            val bg = repository.getBadGroupsBySynonyms(terms.toList())
+            val (terms, resultFile) = imageRecognizer.recognizeImage(file)
+            val bg = repository.getBadGroupsBySynonyms(terms.distinct())
             val prescription = Prescription(
                 id = -1,
                 name = file.name,
                 date = LocalDateTime.now(),
-                fileLocation = file.path,
+                fileLocation = resultFile.path,
                 badGroups = bg,
             )
             repository.addPrescription(prescription)
-
+            _prescriptions.value = repository.getPrescriptions()
             // hide loader
         }
     }

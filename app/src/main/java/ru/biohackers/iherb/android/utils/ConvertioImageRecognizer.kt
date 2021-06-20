@@ -21,9 +21,9 @@ class ConvertioImageRecognizer @Inject constructor(
     val fileManager: FileManager,
 ) : ImageRecognizer {
 
-    override suspend fun recognizeImage(file: File): String {
+    override suspend fun recognizeImage(file: File): Pair<List<String>, File> {
         val data: File = convertFileToTxt(file)
-        return data.readText()
+        return data.readText().split(" ") to File("")
     }
 
     suspend fun convertFileToXlsx(file: File): File {

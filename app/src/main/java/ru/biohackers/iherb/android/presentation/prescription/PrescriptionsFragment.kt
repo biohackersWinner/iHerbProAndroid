@@ -5,18 +5,24 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import dagger.hilt.android.AndroidEntryPoint
 import org.threeten.bp.format.DateTimeFormatter
 import ru.biohackers.iherb.android.databinding.PrescriptionItemBinding
 import ru.biohackers.iherb.android.databinding.PrescriptionsFragmentBinding
+import ru.biohackers.iherb.android.model.BadGroup
 import ru.biohackers.iherb.android.model.Prescription
 import ru.biohackers.iherb.android.utils.bind
+import java.io.File
+
 
 @AndroidEntryPoint
 class PrescriptionsFragment : Fragment() {
@@ -36,7 +42,13 @@ class PrescriptionsFragment : Fragment() {
     private val binding get() = _binding ?: throw IllegalStateException("_binding is null")
     private val viewModel: PrescriptionViewModel by viewModels()
 
-    private val prescriptionAdapter = PrescriptionAdapter()
+    private val prescriptionAdapter = PrescriptionAdapter {
+        findNavController().navigate(
+            PrescriptionsFragmentDirections.actionPrescriptionFragmentToPrescriptionPreviewFragment(
+                it
+            )
+        )
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -56,7 +68,12 @@ class PrescriptionsFragment : Fragment() {
             getContent.launch("image/*")
         }
         binding.buttonAddPrescriptionCamera.setOnClickListener {
-            takePicture.launch(imageUri)
+//            val imagePath = File(requireContext().filesDir, "images")
+//            val newFile = File(imagePath, generateFileName("jpg"))
+//            val imageUri =
+//                getUriForFile(requireContext(), "ru.biohackers.iherb.fileprovider", newFile)
+//            takePicture.launch(imageUri)
+            Toast.makeText(requireContext(), "В разработке", Toast.LENGTH_SHORT).show()
         }
 
         bind(viewModel.prescriptions) {
@@ -65,7 +82,9 @@ class PrescriptionsFragment : Fragment() {
     }
 }
 
-class PrescriptionAdapter :
+class PrescriptionAdapter(
+    val onPreviewShowClickListener: (Int) -> Any
+) :
     ListAdapter<Prescription, PrescriptionAdapter.PrescriptionViewHolder>(WeekDiffCallback()) {
 
     override fun onCreateViewHolder(
@@ -74,7 +93,8 @@ class PrescriptionAdapter :
     ): PrescriptionViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         return PrescriptionViewHolder(
-            PrescriptionItemBinding.inflate(inflater, parent, false)
+            PrescriptionItemBinding.inflate(inflater, parent, false),
+            onPreviewShowClickListener
         )
     }
 
@@ -82,12 +102,24 @@ class PrescriptionAdapter :
         holder.bind(getItem(position))
     }
 
-    class PrescriptionViewHolder(val binding: PrescriptionItemBinding) :
+    class PrescriptionViewHolder(val binding: PrescriptionItemBinding,
+                                 val onPreviewShowClickListener: (Int) -> Any) :
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(item: Prescription) {
             binding.textViewDate.text = DATE_FORMATTER.format(item.date)
-            binding.textViewDescription.text = "Распознано 10 позиций"
+            binding.textViewDescription.text = "Распознано ${item.badGroups.size} позиций:" +
+                    item.badGroups.fold("") { acc: String, bg: BadGroup ->
+                        "$acc\n - ${bg.title}"
+                    }
+            Glide.with(binding.imageViewPreview)
+                .load(Uri.fromFile(File(item.fileLocation)))
+                .centerCrop()
+                .into(binding.imageViewPreview)
+
+            binding.imageViewPreview.setOnClickListener {
+                onPreviewShowClickListener(item.id)
+            }
         }
     }
 

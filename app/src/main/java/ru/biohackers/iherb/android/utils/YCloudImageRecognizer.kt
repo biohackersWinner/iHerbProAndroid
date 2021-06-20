@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.*
 import android.util.Base64
 import android.util.Log
+import androidx.exifinterface.media.ExifInterface
 import com.google.gson.Gson
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -15,63 +16,114 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.asRequestBody
 import okio.buffer
 import okio.sink
+import ru.biohackers.iherb.android.data.Repository
 import java.io.ByteArrayOutputStream
 import java.io.File
 import javax.inject.Inject
 
+
 class YCloudImageRecognizer @Inject constructor(
     @ApplicationContext val context: Context,
     val okHttp: OkHttpClient,
+    val repository: Repository,
     val gson: Gson,
 ) : ImageRecognizer {
 
-    override suspend fun recognizeImage(file: File): String = withContext(Dispatchers.IO) {
-        val bmp: Bitmap = BitmapFactory.decodeFile(file.path)
-        val smallBmp = bmp.resize(1300, 1300)
-        val data = smallBmp.encodeToBase64()!!
+    override suspend fun recognizeImage(file: File): Pair<List<String>, File> =
+        withContext(Dispatchers.IO) {
+            val bmp: Bitmap = BitmapFactory.decodeFile(file.path)
+            val smallBmp = bmp.resize(1300, 1300)
+            val smallRotated = smallBmp.rotateImage(file.path)
+            val data = smallRotated.encodeToBase64()!!
 
-        val target = File(context.cacheDir, "body.json")
+            val target = File(context.cacheDir, "body.json")
 
-        target.sink().buffer().use { sink ->
-            sink.writeUtf8(TEMPLATE_START)
-                .writeUtf8(data)
-                .writeUtf8(TEMPLATE_END)
-                .writeUtf8("\n")
+            target.sink().buffer().use { sink ->
+                sink.writeUtf8(TEMPLATE_START)
+                    .writeUtf8(data)
+                    .writeUtf8(TEMPLATE_END)
+                    .writeUtf8("\n")
+            }
+
+            val mediaType: MediaType =
+                "image/jpg".toMediaTypeOrNull() ?: throw IllegalArgumentException("media")
+            val requestBody = target.asRequestBody(mediaType)
+
+            val request: Request = Request.Builder()
+                .url("https://vision.api.cloud.yandex.net/vision/v1/batchAnalyze")
+                .post(requestBody)
+                .addHeader(
+                    "Authorization",
+                    "Bearer t1.9euelZrGzMuZksrGlY-dy52VncfMnu3rnpWaiYqNmpLPzo_Ji4ySkZCZnZbl8_dlDEZ5-e86UlcT_t3z9yU7Q3n57zpSVxP-.lhOfP1uuyg_QO_aSqHMEIzFykvylWmtcBbHiqhERNpuL6N-eN7RKN5ipLGkJT2pPZf1kF03yzpIXDHL4VyIIAQ"
+                )
+                .addHeader("Content-Type", "application/json")
+                .build()
+
+            val execute = okHttp.newCall(request).execute()
+            val result = execute.body?.string()!!
+            val entity = gson.fromJson(result, YCloudResponse::class.java)
+
+            val page: Page = entity
+                .results[0]
+                .results[0]
+                .textDetection.pages[0]
+
+
+            Log.d(
+                "!!!",
+                "YC parsed page, blocks=${page.blocks.size}, w=${page.width}, h=${page.height}"
+            )
+
+            val resultFile = File(context.filesDir, generateFileName("png"))
+            drawResultOnBitmap(smallRotated, page)
+            resultFile.outputStream().use {
+                smallRotated.compress(Bitmap.CompressFormat.PNG, 100, it)
+            }
+            smallBmp.recycle()
+            File(context.filesDir, "response.json").writeText(result)
+            val terms = page.blocks
+                .flatMap { block ->
+                    block.lines
+                        .flatMap { line ->
+                            line.words
+                                .map { word -> word.text }
+                        }
+                }
+            terms to resultFile
         }
 
-        val mediaType: MediaType =
-            "image/jpg".toMediaTypeOrNull() ?: throw IllegalArgumentException("media")
-        val requestBody = target.asRequestBody(mediaType)
+//    val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+//        textSize = 136f
+//        color = Color.MAGENTA
+//        style = Paint.Style.FILL
+//    }
 
-        val request: Request = Request.Builder()
-            .url("https://vision.api.cloud.yandex.net/vision/v1/batchAnalyze")
-            .post(requestBody)
-            .addHeader(
-                "Authorization",
-                "Bearer t1.9euelZrGzMuZksrGlY-dy52VncfMnu3rnpWaiYqNmpLPzo_Ji4ySkZCZnZbl8_dlDEZ5-e86UlcT_t3z9yU7Q3n57zpSVxP-.lhOfP1uuyg_QO_aSqHMEIzFykvylWmtcBbHiqhERNpuL6N-eN7RKN5ipLGkJT2pPZf1kF03yzpIXDHL4VyIIAQ"
-            )
-            .addHeader("Content-Type", "application/json")
-            .build()
+    fun drawResultOnBitmap(bitmap: Bitmap, page: Page) {
+        val canvas = Canvas(bitmap)
+        canvas.drawBitmap(bitmap, 0f, 0f, Paint())
 
-        val execute = okHttp.newCall(request).execute()
-        val result = execute.body?.string()!!
-        val entity = gson.fromJson(result, YCloudResponse::class.java)
+        val paint = Paint().apply {
+            color = Color.argb(200, 0, 255, 0)
+            style = Paint.Style.STROKE
+            strokeWidth = 4f
+        }
+        page.blocks.forEach { block ->
+            block.lines.forEach { line ->
+                line.words.forEach { word ->
+                    val left = word.boundingBox.vertices[0].x
+                    val top = word.boundingBox.vertices[0].y
+                    val right = word.boundingBox.vertices[2].x
+                    val bottom = word.boundingBox.vertices[2].y
+                    if (checkWord(word.text)) {
+                        canvas.drawRect(Rect(left, top, right, bottom), paint)
+                    }
+                }
+            }
+        }
+    }
 
-        val page = entity
-            .results[0]
-            .results[0]
-            .textDetection.pages[0]
-
-
-        Log.d(
-            "!!!",
-            "YC parsed page, blocks=${page.blocks.size}, w=${page.width}, h=${page.height}"
-        )
-        File(
-            context.filesDir, "response.json"
-        ).writeText(result)
-
-        result
+    fun checkWord(text: String): Boolean {
+        return repository.checkIsHasBadGroup(text)
     }
 
     fun Bitmap.encodeToBase64(): String? {
@@ -103,6 +155,23 @@ class YCloudImageRecognizer @Inject constructor(
         } else this
     }
 
+
+    fun Bitmap.rotateImage(path: String): Bitmap {
+        var rotate = 0
+        val exif = ExifInterface(path)
+        val orientation: Int = exif.getAttributeInt(
+            ExifInterface.TAG_ORIENTATION,
+            ExifInterface.ORIENTATION_NORMAL
+        )
+        when (orientation) {
+            ExifInterface.ORIENTATION_ROTATE_270 -> rotate = 270
+            ExifInterface.ORIENTATION_ROTATE_180 -> rotate = 180
+            ExifInterface.ORIENTATION_ROTATE_90 -> rotate = 90
+        }
+        val matrix = Matrix()
+        matrix.postRotate(rotate.toFloat())
+        return Bitmap.createBitmap(this, 0, 0, this.width, this.height, matrix, true)
+    }
 
     fun Bitmap.colorToGrayscale(): Bitmap {
         val grayScale = Bitmap.createBitmap(this.width, this.height, Bitmap.Config.RGB_565)
