@@ -5,42 +5,175 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="ru.biohackers.iherb.android.presentation.main.MainFragment"
-    >
+    tools:context="ru.biohackers.iherb.android.presentation.main.MainFragment">
 
     <TextView
-        android:id="@+id/textViewCalendarTitle"
+        android:id="@+id/title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
-        android:drawablePadding="8dp"
-        android:fontFamily="@font/nunito_bold"
-        android:paddingTop="10dp"
-        android:text="iHerb"
+        android:fontFamily="sans-serif-medium"
+        android:letterSpacing="0.02"
+        android:lineSpacingExtra="11sp"
+        android:text="@string/profile_title"
         android:textColor="@color/black"
-        android:textSize="20sp"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:textSize="25sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        />
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
-        android:id="@+id/button"
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/imageViewAvatar"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="12dp"
+        android:src="@mipmap/avatar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/title"
+        app:shapeAppearanceOverlay="@style/roundedImageViewRounded"
+        app:strokeColor="@color/white"
+        app:strokeWidth="1dp" />
+
+    <TextView
+        android:id="@+id/textViewName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Мои рецепты"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textViewCalendarTitle" />
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="8dp"
+        android:fontFamily="sans-serif-medium"
+        android:letterSpacing="0.02"
+        android:lineSpacingExtra="11sp"
+        android:text="Фридон"
+        android:textColor="@color/black"
+        android:textSize="19sp"
+        app:layout_constraintBottom_toBottomOf="@+id/imageViewAvatar"
+        app:layout_constraintStart_toEndOf="@+id/imageViewAvatar"
+        app:layout_constraintTop_toTopOf="@+id/imageViewAvatar" />
 
-    <Button
-        android:id="@+id/buttonAnketa"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Анкета профиля"
+    <TextView
+        android:id="@+id/textView3"
+        style="@style/ProfileItemStyle"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginStart="28dp"
+        android:layout_marginTop="32dp"
+        android:text="Анкета"
+        app:drawableEndCompat="@drawable/ic_arrow"
+        app:drawableStartCompat="@drawable/ic_anketa"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button" />
+        app:layout_constraintTop_toBottomOf="@+id/textView2" />
+
+
+    <TextView
+        android:id="@+id/textView4"
+        style="@style/ProfileItemStyle"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginStart="28dp"
+        android:layout_marginEnd="28dp"
+        android:drawablePadding="10dp"
+        android:text="График приема"
+        app:drawableEndCompat="@drawable/ic_arrow"
+        app:drawableStartCompat="@drawable/ic_bad_plan"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView3" />
+
+    <TextView
+        android:id="@+id/textView6"
+        style="@style/ProfileItemStyle"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginStart="28dp"
+        android:layout_marginEnd="28dp"
+        android:drawablePadding="10dp"
+        android:text="@string/progile_bad_scan_menu"
+        app:drawableEndCompat="@drawable/ic_arrow"
+        app:drawableStartCompat="@drawable/ic_bad_scan"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView4" />
+
+    <TextView
+        android:id="@+id/textView5"
+        style="@style/ProfileItemStyle"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginStart="28dp"
+        android:layout_marginEnd="28dp"
+        android:text="@string/profile_notification_menu"
+        app:drawableEndCompat="@drawable/ic_arrow"
+        app:drawableStartCompat="@drawable/ic_notifications"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView9" />
+
+    <TextView
+        android:id="@+id/textView9"
+        style="@style/ProfileItemStyle"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginStart="28dp"
+        android:layout_marginEnd="28dp"
+        android:text="@string/profile_orders_menu"
+        app:drawableEndCompat="@drawable/ic_arrow"
+        app:drawableStartCompat="@drawable/ic_my_order"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView6" />
+
+    <TextView
+        android:id="@+id/textView8"
+        style="@style/ProfileItemStyle"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginStart="28dp"
+        android:layout_marginEnd="28dp"
+        android:text="@string/profile_wishlist_menu"
+        app:drawableEndCompat="@drawable/ic_arrow"
+        app:drawableStartCompat="@drawable/ic_wishlist"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView5" />
+
+    <TextView
+        android:id="@+id/textViewScanRecipe"
+        style="@style/ProfileItemStyle"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginStart="28dp"
+        android:layout_marginEnd="28dp"
+        android:text="Сканировать рецепт"
+        app:drawableEndCompat="@drawable/ic_arrow"
+        app:drawableStartCompat="@drawable/ic_scan_recipe"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView8" />
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="290dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/ic_bubble"
+        android:gravity="start"
+        android:paddingStart="18dp"
+        android:paddingTop="32dp"
+        android:paddingEnd="18dp"
+        android:paddingBottom="13dp"
+        android:text="Заполните анкету, это улучшит наши рекомендации"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageViewAvatar" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

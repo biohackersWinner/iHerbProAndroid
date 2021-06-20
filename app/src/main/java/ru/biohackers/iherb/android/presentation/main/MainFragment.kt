@@ -35,12 +35,10 @@ class MainFragment : Fragment() {
     ) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.button.setOnClickListener {
+        binding.textViewScanRecipe.setOnClickListener {
             findNavController().navigate(R.id.action_mainFragment_to_prescriptionFragment)
         }
-        binding.buttonAnketa.setOnClickListener {
-            findNavController().navigate(R.id.action_mainFragment_to_anketaFragment)
-        }
+
     }
 
 }
